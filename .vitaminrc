@@ -1,0 +1,9 @@
+{
+    "routes": "./routes",
+    "redux": {
+        "reducers": "./reducers"
+    },
+    "server": {
+        "middlewares": "./server/middlewares"
+    }
+}
