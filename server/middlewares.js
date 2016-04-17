@@ -5,16 +5,8 @@ import passport from 'koa-passport';
 import { Strategy as SteamStrategy } from 'passport-steam';
 import serve from 'koa-static';
 import SessionStore from 'koa-generic-session-file';
-import Sequelize from 'sequelize';
-
-// Database
-let sequelize = new Sequelize('mydb', 'postgres', 'toto', {host: 'localhost', dialect: 'postgres'});
-let User = sequelize.define('user', {
-    username: Sequelize.STRING,
-    steamId: Sequelize.STRING,
-    avatar: Sequelize.STRING
-});
-User.sync({force: true});
+import api from './api';
+import { Wipe, User } from './database';
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -52,7 +44,7 @@ passport.use(new SteamStrategy({
                       username: profile.displayName,
                       avatar: profile.photos.length > 0 ? profile.photos[0].value : null
                   }).then(function(user) {
-                      return done(null, newUser);
+                      return done(null, user);
                   });
               }
           });
@@ -79,6 +71,7 @@ securedRoutes.get('/app', function*(next) {
         this.redirect('/auth/steam');
     }
 });
+securedRoutes.use('/api', api.routes(), api.allowedMethods());
 
 export default [
     serve(__dirname + '/../public'),
@@ -97,7 +90,6 @@ export default [
         // Populate user in the store
         store.dispatch({ type: 'USER', user: this.req.user });
         store.dispatch({ type: 'INCREMENT' });
-        console.log('INITIAL STATE', store.getState());
         yield next;
     }
 ];
