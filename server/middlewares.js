@@ -5,6 +5,16 @@ import passport from 'koa-passport';
 import { Strategy as SteamStrategy } from 'passport-steam';
 import serve from 'koa-static';
 import SessionStore from 'koa-generic-session-file';
+import Sequelize from 'sequelize';
+
+// Database
+let sequelize = new Sequelize('mydb', 'postgres', 'toto', {host: 'localhost', dialect: 'postgres'});
+let User = sequelize.define('user', {
+    username: Sequelize.STRING,
+    steamId: Sequelize.STRING,
+    avatar: Sequelize.STRING
+});
+User.sync({force: true});
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -29,13 +39,23 @@ passport.use(new SteamStrategy({
   function(identifier, profile, done) {
       // asynchronous verification, for effect...
       process.nextTick(function () {
-
-          // To keep the example simple, the user's Steam profile is returned to
-          // represent the logged-in user.  In a typical application, you would want
-          // to associate the Steam account with a user record in your database,
-          // and return that user instead.
-          profile.identifier = identifier;
           console.log('STEAM PROFILE', profile);
+
+          // Check if user exists
+          User.findOne({ where: {steamId: profile.id} }).then(function (user) {
+              if (user) {
+                  return done(null, user);
+              // If not create it
+              } else {
+                  User.create({
+                      steamId: profile.id,
+                      username: profile.displayName,
+                      avatar: profile.photos.length > 0 ? profile.photos[0].value : null
+                  }).then(function(user) {
+                      return done(null, newUser);
+                  });
+              }
+          });
 
           return done(null, profile);
       });
