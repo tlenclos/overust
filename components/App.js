@@ -1,27 +1,33 @@
 import { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
-import s from './app.css';
+import s from './App.css';
+import UserInfo from './UserInfo';
 
-const Counter = ({ value, onIncrement, onDecrement }) => (
-  <div> Counter: <span className={s.value}>{value}</span> <br />
+const App = ({ value, user, onIncrement, onDecrement }) => (
+  <div>
+    <UserInfo user={user} />
+    App: <span className={s.value}>{value}</span> <br />
     <span>Hello there</span>
     <button className={s.button} onClick={onIncrement}> +1 </button>
     <button className={s.button} onClick={onDecrement}> -1 </button>
   </div>
 );
 
-Counter.propTypes = {
+App.propTypes = {
   value: PropTypes.number.isRequired,
   onIncrement: PropTypes.func.isRequired,
   onDecrement: PropTypes.func.isRequired,
 };
 
 
-const mapStateToProps = ({ counter }) => ({ value: counter });
+const mapStateToProps = ({ counter, user }) => ({
+    value: counter,
+    user
+});
 const mapDispatchToProps = (dispatch) => ({
   onIncrement: () => dispatch({ type: 'INCREMENT' }),
   onDecrement: () => dispatch({ type: 'DECREMENT' }),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(Counter, s));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(App, s));

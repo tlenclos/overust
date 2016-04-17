@@ -4,6 +4,7 @@ import session from 'koa-generic-session';
 import passport from 'koa-passport';
 import { Strategy as SteamStrategy } from 'passport-steam';
 import serve from 'koa-static';
+import SessionStore from 'koa-generic-session-file';
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -45,12 +46,12 @@ passport.use(new SteamStrategy({
 let publicRoutes = new Router();
 publicRoutes.get('/auth/steam', passport.authenticate('steam'));
 publicRoutes.get('/auth/steam/return', passport.authenticate('steam', { failureRedirect: '/' }), function*(ctx) {
-    this.redirect('/admin');
+    this.redirect('/app');
 });
 
 // Secured routes
 let securedRoutes = new Router();
-securedRoutes.get('/admin', function*(next) {
+securedRoutes.get('/app', function*(next) {
     // TODO Populate the redux store with user
     if (this.isAuthenticated()) {
         yield next;
@@ -66,9 +67,17 @@ export default [
         yield next;
     },
     bodyParser(),
-    session(),
+    session({store: new SessionStore()}),
     passport.initialize(),
     passport.session(),
     publicRoutes.middleware(),
-    securedRoutes.middleware()
+    securedRoutes.middleware(),
+    function*(next) {
+        let store = this.state.store;
+        // Populate user in the store
+        store.dispatch({ type: 'USER', user: this.req.user });
+        store.dispatch({ type: 'INCREMENT' });
+        console.log('INITIAL STATE', store.getState());
+        yield next;
+    }
 ];

@@ -8,4 +8,13 @@ function counter(state = 0, action) {
         return state;
     }
 }
-export default { counter };
+
+function user(state = null, action) {
+    if (action.type === 'USER') {
+        return action.user;
+    }
+
+    return state;
+}
+
+export default { counter, user };
