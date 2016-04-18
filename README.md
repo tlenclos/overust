@@ -11,6 +11,10 @@ Open source app for managing your Rust clan through each wipes.
 
 ## Todo
 
+- [ ] API for wipes
+- [ ] Form to create wipe
+- [ ] Wipe list
+
 ### v0.1
 - User register / login
 - Manage players of your clans through wipes (via Steam)

@@ -9,7 +9,7 @@ function counter(state = 0, action) {
     }
 }
 
-function user(state = null, action) {
+function user(state = {}, action) {
     if (action.type === 'USER') {
         return action.user;
     }

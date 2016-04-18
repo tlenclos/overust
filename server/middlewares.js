@@ -2,11 +2,12 @@ import Router from 'koa-router';
 import bodyParser from 'koa-bodyparser';
 import session from 'koa-generic-session';
 import passport from 'koa-passport';
-import { Strategy as SteamStrategy } from 'passport-steam';
+import json from 'koa-json';
 import serve from 'koa-static';
 import SessionStore from 'koa-generic-session-file';
+import { Strategy as SteamStrategy } from 'passport-steam';
+import { User } from './database';
 import api from './api';
-import { Wipe, User } from './database';
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -71,7 +72,14 @@ securedRoutes.get('/app', function*(next) {
         this.redirect('/auth/steam');
     }
 });
-securedRoutes.use('/api', api.routes(), api.allowedMethods());
+securedRoutes.use('/api', json(), function*(next) {
+    if (this.isAuthenticated()) {
+        yield next;
+    } else {
+        this.status = 401;
+        this.body = {error: 'Not authorized'};
+    }
+}, api.routes(), api.allowedMethods());
 
 export default [
     serve(__dirname + '/../public'),

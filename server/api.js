@@ -1,22 +1,22 @@
 import Router from 'koa-router';
-import json from 'koa-json';
 import { Wipe } from './database/index';
 import parse from 'co-body';
 
 let api = new Router();
-api.use(json());
 
 api.get('/wipe', function*(next) {
     this.body = yield Wipe.findAll();
 });
 
 api.post('/wipe', function*(next) {
-    console.log('post');
-    let body = yield parse(this); // TODO Blocking the response, don't know why
-    console.log('body', body);
-    /*
-     from, to, serverName, serverUrl
-     */
+    let body = yield parse(this);
+    this.body = yield Wipe.create({
+        from: body.from,
+        to: body.to,
+        serverName: body.serverName,
+        serverUrl: body.serverUrl
+    });
+    this.status = 201;
 });
 
 export default api;
