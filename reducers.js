@@ -1,3 +1,5 @@
+import {reducer as formReducer} from 'redux-form';
+
 function counter(state = 0, action) {
     switch (action.type) {
     case 'INCREMENT':
@@ -10,11 +12,11 @@ function counter(state = 0, action) {
 }
 
 function user(state = {}, action) {
-    if (action.type === 'USER') {
+    if (action.type === 'USER' && action.user) {
         return action.user;
     }
 
     return state;
 }
 
-export default { counter, user };
+export default { counter, user, form: formReducer };

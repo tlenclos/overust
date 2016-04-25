@@ -1,6 +1,7 @@
 import { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
+import { Link } from 'react-router';
 import s from './App.css';
 import UserInfo from './UserInfo';
 
@@ -11,6 +12,8 @@ const App = ({ value, user, onIncrement, onDecrement }) => (
     <span>Hello there</span>
     <button className={s.button} onClick={onIncrement}> +1 </button>
     <button className={s.button} onClick={onDecrement}> -1 </button>
+
+    <Link to={`/app/wipe/create`}>Start by creating a wipe</Link>
   </div>
 );
 
@@ -19,7 +22,6 @@ App.propTypes = {
   onIncrement: PropTypes.func.isRequired,
   onDecrement: PropTypes.func.isRequired,
 };
-
 
 const mapStateToProps = ({ counter, user }) => ({
     value: counter,

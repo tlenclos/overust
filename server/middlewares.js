@@ -64,9 +64,9 @@ publicRoutes.get('/auth/steam/return', passport.authenticate('steam', { failureR
 
 // Secured routes
 let securedRoutes = new Router();
-securedRoutes.get('/app', function*(next) {
+securedRoutes.get('/app/*', function*(next) {
     // TODO Populate the redux store with user
-    if (this.isAuthenticated()) {
+    if (this.isAuthenticated(   )) {
         yield next;
     } else {
         this.redirect('/auth/steam');
@@ -88,7 +88,10 @@ export default [
         yield next;
     },
     bodyParser(),
-    session({store: new SessionStore()}),
+    session({
+        store: new SessionStore(),
+        cookie: {httpOnly: false}
+    }),
     passport.initialize(),
     passport.session(),
     publicRoutes.middleware(),
