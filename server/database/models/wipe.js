@@ -1,8 +1,9 @@
 import Sequelize from 'sequelize';
 
 export default {
-    from: Sequelize.DATE,
-    to: Sequelize.DATE,
-    serverName: Sequelize.STRING,
-    serverUrl: Sequelize.STRING
+    from: {type: Sequelize.DATE, allowNull: false},
+    to: {type: Sequelize.DATE, allowNull: false},
+    serverName: {type: Sequelize.STRING, allowNull: false},
+    serverUrl: Sequelize.STRING,
+    // TODO Add createdBy
 }

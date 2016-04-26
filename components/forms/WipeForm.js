@@ -3,10 +3,20 @@ import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import {reduxForm} from 'redux-form';
 import s from './WipeForm.css';
 
-function handleSubmit(event) {
+function checkStatus(response) {
+    let json = response.json();
+
+    if (response.status >= 200 && response.status < 300) {
+        return json
+    } else {
+        return json.then(Promise.reject.bind(Promise));
+    }
+}
+
+const handleSubmit = event => {
     event.preventDefault();
 
-    fetch('/api/wipe', {
+    return fetch('/api/wipe', {
         credentials: 'include',
         header: {
             'Accept': 'application/json',
@@ -15,10 +25,16 @@ function handleSubmit(event) {
         method: 'POST',
         body: JSON.stringify({test: 1})
     })
-    .then(response => response.json())
-    .then(json =>
-        console.log(json)
-    );
+    .then(checkStatus)
+    .then(function(data) {
+        console.log('request succeeded with JSON response', data);
+        // TODO Redirect to wipe list
+        // TODO Save new wipe in state
+    })
+    .catch(function(errors) {
+        // TODO Add form error validation
+        console.log('errors', errors);
+    });
 }
 
 let WipeForm = ({ from, to, serverName }) => (

@@ -2,7 +2,7 @@ import Sequelize from 'sequelize';
 import userSchema from './models/user';
 import wipeSchema from './models/wipe';
 
-let sequelize = new Sequelize('overust', 'thibz', 'toto', {host: 'localhost', dialect: 'postgres'});
+let sequelize = new Sequelize('mydb', 'postgres', 'toto', {host: 'localhost', dialect: 'postgres'});
 
 // models
 let User = sequelize.define('user', userSchema);

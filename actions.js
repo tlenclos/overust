@@ -11,7 +11,7 @@ export const RECEIVE_WIPES = 'RECEIVE_WIPES'
 function receiveWipes(json) {
   return {
     type: RECEIVE_WIPES,
-    wipes: json.data.children.map(child => child.data),
+    wipes: json,
     receivedAt: Date.now()
   }
 }
