@@ -6,8 +6,6 @@ import s from './WipeForm.css';
 function handleSubmit(event) {
     event.preventDefault();
 
-    console.log();
-
     fetch('/api/wipe', {
         credentials: 'include',
         header: {

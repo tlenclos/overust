@@ -4,6 +4,7 @@ import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import { Link } from 'react-router';
 import s from './App.css';
 import UserInfo from './UserInfo';
+import Wipes from './Wipes';
 
 const App = ({ value, user, onIncrement, onDecrement }) => (
   <div>
@@ -14,6 +15,8 @@ const App = ({ value, user, onIncrement, onDecrement }) => (
     <button className={s.button} onClick={onDecrement}> -1 </button>
 
     <Link to={`/app/wipe/create`}>Start by creating a wipe</Link>
+
+    <Wipes />
   </div>
 );
 
