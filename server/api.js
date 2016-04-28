@@ -9,7 +9,7 @@ api.get('/wipe', function*(next) {
 });
 
 api.post('/wipe', function*(next) {
-    let body = yield parse(this);
+    let body = yield parse.json(this);
 
     try {
         this.body = yield Wipe.create({

@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 import s from './App.css';
 import UserInfo from './UserInfo';
 import Wipes from './Wipes';
-import { fetchWipesAction } from './../actions';
+import { fetchWipes as fetchWipesAction } from './../actions';
 
 class App extends Component {
     constructor(props) {
