@@ -35,7 +35,7 @@ export function fetchWipes() {
     // In this case, we return a promise to wait for.
     // This is not required by thunk middleware, but it is convenient for us.
 
-    return fetch('/api/wipe', {
+    return fetch('http://localhost:3000/api/wipe', {
       credentials: 'include',
       header: {
         'Accept': 'application/json',
@@ -44,13 +44,15 @@ export function fetchWipes() {
       method: 'GET'
     })
     .then(response => response.json())
-    .then(json =>
-
+    .then(json => {
       // We can dispatch many times!
       // Here, we update the app state with the results of the API call.
-
-      dispatch(receiveWipes(json))
-    );
+      if (!json.error) {
+        dispatch(receiveWipes(json))
+      } else {
+        console.error('Error while fetching wipes', json);
+      }
+    });
 
     // In a real world app, you also want to
     // catch any error in the network call.

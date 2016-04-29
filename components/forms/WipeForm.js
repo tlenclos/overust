@@ -1,6 +1,7 @@
 import { PropTypes, Component } from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import {reduxForm} from 'redux-form';
+import AutoComplete from 'react-autocomplete';
 import s from './WipeForm.css';
 import { checkStatusOfJsonResponse, formatSequelizeErrorsToReduxForm } from './../../utils';
 
@@ -8,11 +9,16 @@ class WipeForm extends Component {
     constructor(props, context) {
         super(props, context);
         this.submit = this.submit.bind(this);
+        this.autocomplete = this.autocomplete.bind(this);
+
+        this.state = {
+            searchValue: '',
+            steamSearch: []
+        }
     }
 
     submit(values, dispatch) {
         console.log('values', values);
-        console.log('context2', this.context);
 
         return new Promise((resolve, reject) => {
             fetch('/api/wipe', {
@@ -28,7 +34,6 @@ class WipeForm extends Component {
             .then((data) => {
                 console.log('request succeeded with JSON response', data);
                 // TODO Save new wipe in state
-                // TODO Redirect to wipe list
                 resolve({then: () => {
                     this.context.router.push('/app');
                 }});
@@ -37,6 +42,10 @@ class WipeForm extends Component {
                 reject({...formatSequelizeErrorsToReduxForm(errors),  _error: 'Wipe creation failed.' })
             });
         })
+    }
+
+    autocomplete(value) {
+        console.log('autocomplete for value', value);
     }
 
     render() {
@@ -56,6 +65,32 @@ class WipeForm extends Component {
                 <label>Server name</label>
                 <input type="text" placeholder="Server name" {...serverName}/>
                 {serverName.touched && serverName.error && <div>{serverName.error}</div>}
+            </div>
+            <div>
+                <AutoComplete
+                    labelText="Team"
+                    ref="autocomplete"
+                    value={this.state.searchValue}
+                    inputProps={{
+                        type: 'search',
+                        placeholder: 'Search for your team mates on steam'
+                    }}
+                    items={this.state.steamSearch}
+                    getItemValue={(item) => item.name}
+                    onSelect={(value, item) => {
+                        console.log(value);
+                    }}
+                    onChange={(event, value) => {
+                        this.setState({ searchValue: value, loading: true })
+                        this.autocomplete(value);
+                    }}
+                    renderItem={(item, isHighlighted) => (
+                        <div
+                          key={item.name}
+                          id={item.name}
+                        >{item.name}</div>
+                    )}
+                />
             </div>
 
             {error && <div>{error}</div>}

@@ -24,7 +24,7 @@ class App extends Component {
             <button className={s.button} onClick={onIncrement}> +1 </button>
             <button className={s.button} onClick={onDecrement}> -1 </button>
 
-            <Wipes wipes={wipes.items} />
+            {wipes.items && <Wipes wipes={wipes.items} />}
 
             <Link to={`/app/wipe/create`}>Start by creating a wipe</Link>
         </div>;
@@ -49,4 +49,13 @@ const mapDispatchToProps = (dispatch) => ({
     fetchWipes: () => dispatch(fetchWipesAction())
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(App, s));
+const Connected = connect(mapStateToProps, mapDispatchToProps)(withStyles(App, s));
+
+Connected.loadProps = ({loadContext}, cb) => {
+    loadContext.dispatch(fetchWipesAction()).then(() => {
+        console.log('LOAD PROPS CALLBACK');
+        cb(null, {wipes: {}});
+    })
+}
+
+export default Connected;
