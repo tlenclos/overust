@@ -1,23 +1,69 @@
 import { PropTypes, Component } from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import {reduxForm} from 'redux-form';
-import AutoComplete from 'react-autocomplete';
+import Select from 'react-select';
+import classNames from "classnames";
 import s from './WipeForm.css';
 import { checkStatusOfJsonResponse, formatSequelizeErrorsToReduxForm } from './../../utils';
+
+class UserSelectValue extends Component {
+    render() {
+        let {children, placeholder, value} = this.props;
+        return <div className="Select-value" title={this.props.value.title}>
+            <span className="Select-value-label">
+                <img src={value.avatar} />
+                {this.props.children}
+            </span>
+        </div>
+    }
+}
+
+class UserSelectOption extends Component {
+    constructor(props) {
+        super(props);
+    }
+    handleMouseDown (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.props.onSelect(this.props.option, event);
+    }
+    handleMouseEnter (event) {
+        this.props.onFocus(this.props.option, event);
+    }
+    handleMouseMove (event) {
+        if (this.props.isFocused) return;
+        this.props.onFocus(this.props.option, event);
+    }
+    render () {
+        return (
+            <div className={this.props.className}
+                 onMouseDown={this.handleMouseDown.bind(this)}
+                 onMouseEnter={this.handleMouseEnter.bind(this)}
+                 onMouseMove={this.handleMouseMove.bind(this)}
+                 title={this.props.option.title}>
+                <img src={this.props.option.avatar} />
+                {this.props.children}
+            </div>
+        );
+    }
+}
 
 class WipeForm extends Component {
     constructor(props, context) {
         super(props, context);
         this.submit = this.submit.bind(this);
-        this.autocomplete = this.autocomplete.bind(this);
+        this.getFriends = this.getFriends.bind(this);
 
         this.state = {
             searchValue: '',
-            steamSearch: []
-        }
+            steamSearch: [],
+            friends: [], // Result from friends API
+            friendsSelected: ''
+        };
     }
 
     submit(values, dispatch) {
+        values.team = this.state.friendsSelected.split(',');
         console.log('values', values);
 
         return new Promise((resolve, reject) => {
@@ -44,8 +90,32 @@ class WipeForm extends Component {
         })
     }
 
-    autocomplete(value) {
-        console.log('autocomplete for value', value);
+    getFriends(input, callback) {
+        // TODO Handle errors
+        fetch('/api/friends', {
+            credentials: 'include',
+            header: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            method: 'GET'
+        })
+        .then(checkStatusOfJsonResponse)
+        .then((data) => {
+            this.setState({friends: data});
+
+            callback(null, {
+                options: data.map((friend) => {
+                    return {
+                        value: friend.steamid,
+                        label: friend.personaname,
+                        avatar: friend.avatar,
+                        clearableValue: true
+                    }
+                }),
+                complete: true
+            });
+        });
     }
 
     render() {
@@ -67,29 +137,17 @@ class WipeForm extends Component {
                 {serverName.touched && serverName.error && <div>{serverName.error}</div>}
             </div>
             <div>
-                <AutoComplete
-                    labelText="Team"
-                    ref="autocomplete"
-                    value={this.state.searchValue}
-                    inputProps={{
-                        type: 'search',
-                        placeholder: 'Search for your team mates on steam'
+                <Select.Async
+                    multi
+                    simpleValue
+                    name="team"
+                    value={this.state.friendsSelected}
+                    loadOptions={this.getFriends}
+                    onChange={(friendsSelected, test) => {
+                        this.setState({ friendsSelected });
                     }}
-                    items={this.state.steamSearch}
-                    getItemValue={(item) => item.name}
-                    onSelect={(value, item) => {
-                        console.log(value);
-                    }}
-                    onChange={(event, value) => {
-                        this.setState({ searchValue: value, loading: true })
-                        this.autocomplete(value);
-                    }}
-                    renderItem={(item, isHighlighted) => (
-                        <div
-                          key={item.name}
-                          id={item.name}
-                        >{item.name}</div>
-                    )}
+                    valueComponent={UserSelectValue}
+                    optionComponent={UserSelectOption}
                 />
             </div>
 

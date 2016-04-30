@@ -3,20 +3,6 @@ import Helmet from "react-helmet";
 
 const Home = () => (
     <div>
-      <Helmet
-        htmlAttributes={{"lang": "en"}} // amp takes no value
-        title="Home"
-        titleTemplate="Overust - %s"
-        base={{"target": "_blank", "href": "http://localhost:3000/"}}
-        meta={[
-          {"name": "description", "content": "Overust, manage you clan"},
-        ]}
-        link={[
-          {"rel": "stylesheet", "href": "http://yui.yahooapis.com/pure/0.6.0/pure-min.css"},
-          {"rel": "stylesheet", "href": "/app.css"},
-        ]}
-      />
-
       <div className="header">
         <div className="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
           <a className="pure-menu-heading" href="">OveRust</a>

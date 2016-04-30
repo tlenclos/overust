@@ -1,6 +1,14 @@
 import Router from 'koa-router';
 import { User, Wipe } from './database/index';
 import parse from 'co-body';
+import steam from 'steam-web';
+import memoryCache from 'memory-cache';
+
+memoryCache.debug(true);
+const steamApi = new steam({
+    apiKey: '97505E040CF70988B993C6FF6B5F6DA3',
+    format: 'json'
+});
 
 let api = new Router();
 
@@ -21,6 +29,10 @@ api.post('/wipe', function*(next) {
 
     try {
         let currentUser = yield User.findOne({ where: {steamId: this.req.user.id} });
+        if (currentUser) {
+            throw new Error('Invalid user !');
+        }
+
         let wipe = yield Wipe.create({
             from: body.from,
             to: body.to,
@@ -37,6 +49,48 @@ api.post('/wipe', function*(next) {
         } else {
             throw error;
         }
+    }
+});
+
+
+api.get('/friends', function*(next) {
+    // Fetch steam friends and populate their basic profile information
+    const cacheKey = `friends_${this.req.user.id}`;
+    const cacheValue = memoryCache.get(cacheKey);
+
+    if (cacheValue) {
+        this.body = cacheValue;
+    } else {
+        yield new Promise((resolve, reject) => {
+            steamApi.getFriendList({
+                steamid: this.req.user.id,
+                relationship: 'all', //'all' or 'friend'
+                callback: (err, data) => {
+                    if (err) {
+                        this.body = err;
+                    } else {
+                        let steamIds = data.friendslist.friends.map((friend) => {
+                            return friend.steamid;
+                        });
+
+                        steamApi.getPlayerSummaries({
+                            steamids: steamIds,
+                            callback: (err, data) => {
+                                if (err) {
+                                    this.body = err;
+                                } else {
+                                    let friends = data.response.players;
+                                    memoryCache.put(cacheKey, friends, 3600*1000);
+                                    this.body = friends;
+                                }
+
+                                resolve();
+                            }
+                        });
+                    }
+                }
+            });
+        });
     }
 });
 
