@@ -43,14 +43,13 @@ passport.use(new SteamStrategy({
                   User.create({
                       steamId: profile.id,
                       username: profile.displayName,
-                      avatar: profile.photos.length > 0 ? profile.photos[0].value : null
+                      avatar: profile._json.avatar,
+                      avatarFull: profile._json.avatarfull,
                   }).then(function(user) {
                       return done(null, user);
                   });
               }
           });
-
-          return done(null, profile);
       });
   }
 ));
@@ -64,9 +63,10 @@ publicRoutes.get('/auth/steam/return', passport.authenticate('steam', { failureR
 
 // Secured routes
 let securedRoutes = new Router();
-securedRoutes.get('/app/*', function*(next) {
+securedRoutes.get('/app', function*(next) {
     // TODO Populate the redux store with user
-    if (this.isAuthenticated(   )) {
+    console.log('this.isAuthenticated', this.isAuthenticated());
+    if (this.isAuthenticated()) {
         yield next;
     } else {
         this.redirect('/auth/steam');

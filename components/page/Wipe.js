@@ -19,14 +19,12 @@ class Wipes extends Component {
     render() {
         const { user, wipes } = this.props;
         return <div>
-                <div className="container">
-                <UserInfo user={user} />
-                <Link className={'pure-button'} to={`/app/wipe/create`}>
-                    {wipes.items ? 'New wipe' : 'Start by creating a wipe'}
-                </Link>
-            </div>
-
+            <UserInfo user={user} />
             {wipes.items && <WipesList wipes={wipes.items} />}
+
+            <div className="container">
+                <Link className="pure-button" to={`/app/wipe/create`}>Start by creating a wipe</Link>
+            </div>
         </div>;
     }
 }

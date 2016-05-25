@@ -17,4 +17,22 @@ Wipe.belongsToMany(User, {through: 'UserWipe'});
 // create
 sequelize.sync({ force: true });
 
-export { sequelize, User, Wipe }
+// functions
+const createUserIfNotExist = (steamUser) => {
+    return new Promise((resolve, reject) => {
+        User.findOne({ where: {steamId: steamUser.steamid} }).then(function (user) {
+            if (user) {
+                return resolve(user);
+            } else {
+                resolve(User.create({
+                    steamId: steamUser.steamid,
+                    username: steamUser.personaname,
+                    avatar: steamUser.avatar,
+                    avatarFull: steamUser.avatarfull
+                }));
+            }
+        });
+    })
+};
+
+export { sequelize, User, Wipe, createUserIfNotExist }

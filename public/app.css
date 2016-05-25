@@ -12,8 +12,10 @@
  */
 body {
     line-height: 1.7em;
-    color: #7f8c8d;
+    color: #cad8d8;
     font-size: 13px;
+    background-color: #424848;
+    font-family: "Myanmar MN";
 }
 
 h1,
@@ -22,8 +24,9 @@ h3,
 h4,
 h5,
 h6,
+p,
 label {
-    color: #34495e;
+    color: #cad8d8;
 }
 
 .pure-menu-selected .pure-menu-link, .pure-menu-selected .pure-menu-link:visited {
@@ -77,8 +80,8 @@ label {
  * I want my pure-button elements to look a little different
  */
 .pure-button {
-    background-color: #1f8dd6;
-    color: white;
+    background-color: #212424;
+    color: #cad8d8;
     padding: 0.5em 2em;
     border-radius: 5px;
 }
@@ -644,4 +647,10 @@ a.pure-button-primary {
     to {
         -webkit-transform: rotate(1turn);
     }
+}
+
+.container {
+    background-color: #2c3030;
+    padding: 5px;
+    margin-bottom: 15px;
 }

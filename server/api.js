@@ -1,11 +1,11 @@
 import Router from 'koa-router';
-import { User, Wipe } from './database/index';
+import { User, Wipe, createUserIfNotExist } from './database/index';
 import parse from 'co-body';
-import steam from 'steam-web';
+import Steam from 'steam-web';
 import memoryCache from 'memory-cache';
 
 memoryCache.debug(true);
-const steamApi = new steam({
+const steamApi = new Steam({
     apiKey: '97505E040CF70988B993C6FF6B5F6DA3',
     format: 'json'
 });
@@ -14,6 +14,9 @@ let api = new Router();
 
 api.get('/wipe', function*(next) {
     this.body = yield Wipe.findAll({
+        where: {
+            createdBy: this.req.user.steamId
+        },
         include: [{
             model: User,
             through: {
@@ -28,8 +31,8 @@ api.post('/wipe', function*(next) {
     let body = yield parse.json(this);
 
     try {
-        let currentUser = yield User.findOne({ where: {steamId: this.req.user.id} });
-        if (currentUser) {
+        let currentUser = yield User.findOne({ where: {steamId: this.req.user.steamId} });
+        if (!currentUser) {
             throw new Error('Invalid user !');
         }
 
@@ -37,10 +40,21 @@ api.post('/wipe', function*(next) {
             from: body.from,
             to: body.to,
             serverName: body.serverName,
-            serverUrl: body.serverUrl
+            serverUrl: body.serverUrl,
+            createdBy: this.req.user.steamId
         });
 
-        this.body = wipe.addUser([currentUser]);
+        // TODO Create friends account if they not exists
+        let friends = [];
+        body.team.forEach((friend) => {
+            friends.push(createUserIfNotExist(friend));
+        });
+        friends.push(currentUser);
+        Promise.all(friends).then((friendsResolved) => {
+            wipe.addUser(friendsResolved)
+        });
+
+        this.body = wipe;
         this.status = 201;
     } catch (error) {
         if (error.name === 'SequelizeValidationError') {
@@ -55,7 +69,7 @@ api.post('/wipe', function*(next) {
 
 api.get('/friends', function*(next) {
     // Fetch steam friends and populate their basic profile information
-    const cacheKey = `friends_${this.req.user.id}`;
+    const cacheKey = `friends_${this.req.user.steamId}`;
     const cacheValue = memoryCache.get(cacheKey);
 
     if (cacheValue) {
@@ -63,7 +77,7 @@ api.get('/friends', function*(next) {
     } else {
         yield new Promise((resolve, reject) => {
             steamApi.getFriendList({
-                steamid: this.req.user.id,
+                steamid: this.req.user.steamId,
                 relationship: 'all', //'all' or 'friend'
                 callback: (err, data) => {
                     if (err) {

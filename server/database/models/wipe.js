@@ -17,5 +17,9 @@ export default {
     },
     serverUrl: {
         type: Sequelize.STRING
+    },
+    createdBy: {
+        type: Sequelize.STRING,
+        allowNull: false,
     }
 }

@@ -1,9 +1,7 @@
-
-.value {
-    color: red;
-    font-weight: bold;
-}
-
 .button {
-    margin: 5px;
+    /** TODO Extend pure-button **/
+    margin: auto;
+    display: block;
+    width: 250px;
+    text-align: center;
 }

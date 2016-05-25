@@ -5,6 +5,7 @@ import Select from 'react-select';
 import classNames from "classnames";
 import s from './WipeForm.css';
 import { checkStatusOfJsonResponse, formatSequelizeErrorsToReduxForm } from './../../utils';
+import filter from 'lodash/filter';
 
 class UserSelectValue extends Component {
     render() {
@@ -63,8 +64,9 @@ class WipeForm extends Component {
     }
 
     submit(values, dispatch) {
-        values.team = this.state.friendsSelected.split(',');
-        console.log('values', values);
+        values.team = filter(this.state.friends, (friend) => {
+            return this.state.friendsSelected.indexOf(friend.steamid) >= 0;
+        });
 
         return new Promise((resolve, reject) => {
             fetch('/api/wipe', {

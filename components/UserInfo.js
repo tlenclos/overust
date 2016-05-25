@@ -6,7 +6,7 @@ import s from './UserInfo.css';
 const UserInfo = ({ user }) => {
     return <div>
         Welcome <span className={s.value}>{user.displayName}</span> <br />
-        <img className={s.avatar} src={user._json.avatarfull}/>
+        <img className={s.avatar} src={user.avatarFull}/>
     </div>
 };
 
@@ -16,4 +16,3 @@ UserInfo.propTypes = {
 
 const mapStateToProps = ({ user }) => ({ user: user });
 export default connect(mapStateToProps)(withStyles(UserInfo, s));
-                                    
